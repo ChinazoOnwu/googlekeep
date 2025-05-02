@@ -10,6 +10,7 @@ class App {
   constructor() {
     this.notes = [new Note("abc1", "test title", "test text")];
     this.selectedNoteId = "";
+    this.miniSidebar = true;
 
     this.$activeForm = document.querySelector(".active-form");
     this.$inactiveForm = document.querySelector(".inactive-form");
@@ -22,6 +23,8 @@ class App {
     this.$modalTitle = document.querySelector("#modal-title");
     this.$modalText = document.querySelector("#modal-text");
     this.$closeModalForm = document.querySelector("#modal-btn");
+    this.$sidebar = document.querySelector(".sidebar");
+    this.$sidebarActiveItem = document.querySelector(".active-item");
 
     this.addEventListeners();
     this.displayNotes();
@@ -43,8 +46,16 @@ class App {
       this.closeActiveForm();
     });
 
-    this.$modalForm.addEventListener("click", (event) => {
+    this.$modalForm.addEventListener("submit", (event) => {
       event.preventDefault();
+    });
+
+    this.$sidebar.addEventListener("mouseover", (event) => {
+      this.handleToggleSidebar();
+    });
+
+    this.$sidebar.addEventListener("mouseout", (event) => {
+      this.handleToggleSidebar();
     });
   }
 
@@ -82,6 +93,8 @@ class App {
       this.$modalTitle.value = $selectedNote.children[1].innerHTML;
       this.$modalText.value = $selectedNote.children[2].innerHTML;
       this.$modal.classList.add("open-modal");
+    } else {
+      return;
     }
   }
 
@@ -90,7 +103,10 @@ class App {
     const isCloseModalBtnClickedOn = this.$closeModalForm.contains(
       event.target
     );
-    if ((!isModalFormClickedOn || isCloseModalBtnClickedOn) && this.$modal.classList.contains("open-modal")) {
+    if (
+      (!isModalFormClickedOn || isCloseModalBtnClickedOn) &&
+      this.$modal.classList.contains("open-modal")
+    ) {
       this.editNote(this.selectedNoteId, {
         title: this.$modalTitle.value,
         text: this.$modalText.value,
@@ -128,11 +144,6 @@ class App {
     this.displayNotes();
   }
 
-  deleteNote(id) {
-    this.notes = this.notes.filter((note) => note.id != id);
-    this.displayNotes();
-  }
-
   handleMouseOverNote(element) {
     const $note = document.querySelector("#" + element.id);
     const $checkNote = $note.querySelector(".check-circle");
@@ -149,46 +160,80 @@ class App {
     $noteFooter.style.visibility = "hidden";
   }
 
+  handleToggleSidebar() {
+    if (this.miniSidebar) {
+      this.$sidebar.style.width = "250px";
+      this.$sidebar.classList.add("sidebar-hover");
+      this.$sidebarActiveItem.classList.add("sidebar-active-item");
+      this.miniSidebar = false;
+    } else {
+      this.$sidebar.style.width = "80px";
+      this.$sidebar.classList.remove("sidebar-hover");
+      this.$sidebarActiveItem.classList.remove("sidebar-active-item");
+      this.miniSidebar = true;
+    }
+  }
+
+  //  onmouseover="app.handleMouseOverNote(this)" onmouseout="app.handleMouseOutNote(this)"
+
   displayNotes() {
     this.$notes.innerHTML = this.notes
       .map(
         (note) =>
           `
-          <div class="note" id="${note.id}" onmouseover="app.handleMouseOverNote(this)" onmouseout="app.handleMouseOutNote(this)">
-            <span class="material-symbols-outlined check-circle">check_circle</span>
-            <div class="title">${note.title}</div>
-            <div class="text">${note.text}</div>
-            <div class="note-footer">
-              <div class="tooltip">
-                <span class="material-symbols-outlined hover small-icon">add_alert</span>
-                <span class="tooltip-text">Remind me</span>
-              </div>
-              <div class="tooltip">
-                <span class="material-symbols-outlined hover small-icon"
-                  >person_add</span>
-                <span class="tooltip-text">Collaborator</span>
-              </div>
-              <div class="tooltip">
-                <span class="material-symbols-outlined hover small-icon">palette</span>
-                <span class="tooltip-text">Change Color</span>
-              </div>
-              <div class="tooltip">
-                <span class="material-symbols-outlined hover small-icon">image</span>
-                <span class="tooltip-text">Add Image</span>
-              </div>
-              <div class="tooltip archive">
-                <span class="material-symbols-outlined hover small-icon">archive</span>
-                <span class="tooltip-text">Archive</span>
-              </div>
-              <div class="tooltip">
-                <span class="material-symbols-outlined hover small-icon">more_vert</span>
-                <span class="tooltip-text">More</span>
-              </div>
+        <div class="note" id="${note.id}">
+          <span class="material-symbols-outlined check-circle"
+            >check_circle</span
+          >
+          <div class="title">${note.title}</div>
+          <div class="text">${note.text}</div>
+          <div class="note-footer">
+            <div class="tooltip">
+              <span class="material-symbols-outlined hover small-icon"
+                >add_alert</span
+              >
+              <span class="tooltip-text">Remind me</span>
+            </div>
+            <div class="tooltip">
+              <span class="material-symbols-outlined hover small-icon"
+                >person_add</span
+              >
+              <span class="tooltip-text">Collaborator</span>
+            </div>
+            <div class="tooltip">
+              <span class="material-symbols-outlined hover small-icon"
+                >palette</span
+              >
+              <span class="tooltip-text">Change Color</span>
+            </div>
+            <div class="tooltip">
+              <span class="material-symbols-outlined hover small-icon"
+                >image</span
+              >
+              <span class="tooltip-text">Add Image</span>
+            </div>
+            <div class="tooltip archive">
+              <span class="material-symbols-outlined hover small-icon"
+                >archive</span
+              >
+              <span class="tooltip-text">Archive</span>
+            </div>
+            <div class="tooltip">
+              <span class="material-symbols-outlined hover small-icon"
+                >more_vert</span
+              >
+              <span class="tooltip-text">More</span>
             </div>
           </div>
-          `
+        </div>
+        `
       )
       .join("");
+  }
+
+  deleteNote(id) {
+    this.notes = this.notes.filter((note) => note.id != id);
+    this.displayNotes();
   }
 }
 
