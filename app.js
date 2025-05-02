@@ -181,7 +181,7 @@ class App {
       .map(
         (note) =>
           `
-        <div class="note" id="${note.id}">
+        <div class="note" id="${note.id}" onmouseover="app.handleMouseOverNote(this)" onmouseout="app.handleMouseOutNote(this)">
           <span class="material-symbols-outlined check-circle"
             >check_circle</span
           >
